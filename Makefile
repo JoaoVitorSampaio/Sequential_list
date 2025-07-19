@@ -1,33 +1,38 @@
-# Variáveis do compilador e flags de compilação
+# Compiler and flags
 CXX = g++
 CXXFLAGS = -Wall -Wextra -g -Iinclude
 
-# Diretórios e arquivos
+# Directories
 SRC_DIR = src
 OBJ_DIR = obj
 BUILD_DIR = build
-SOURCES = $(wildcard $(SRC_DIR)/*.cpp)  # Encontrar todos os arquivos .cpp em src
-OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))  # Converter para arquivos .o
-EXECUTABLE = $(BUILD_DIR)/programa.exe
 
-# Regra principal (target): compila o programa
-all: $(BUILD_DIR) $(EXECUTABLE)
+# Files
+SOURCES = $(wildcard $(SRC_DIR)/*.cpp)
+OBJECTS = $(patsubst $(SRC_DIR)/%.cpp, $(OBJ_DIR)/%.o, $(SOURCES))
+EXECUTABLE = $(BUILD_DIR)/programa
 
-# Regra para criar o executável
+# Default target
+all: $(BUILD_DIR) $(OBJ_DIR) $(EXECUTABLE)
+
+# Build executable
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(EXECUTABLE) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Regra para compilar arquivos .cpp em arquivos .o, criando o diretório obj se necessário
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp | $(OBJ_DIR)
+# Compile source files
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Criação do diretório obj e build caso não existam
+# Create directories if not exist
 $(OBJ_DIR):
-	if not exist $(OBJ_DIR) mkdir $(OBJ_DIR)
+	mkdir -p $(OBJ_DIR)
 
 $(BUILD_DIR):
-	if not exist $(BUILD_DIR) mkdir $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 
-# Limpeza dos arquivos gerados
+# Clean generated files
 clean:
-	del /Q $(OBJECTS) $(EXECUTABLE)
+	rm -f $(OBJECTS) $(EXECUTABLE)
+	rm -rf $(OBJ_DIR) $(BUILD_DIR)
+
+.PHONY: all clean
